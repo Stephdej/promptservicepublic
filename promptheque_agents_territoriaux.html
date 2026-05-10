@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Promptothèque — Agents Territoriaux</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bleu: #1a2e4a;
+    --bleu-mid: #2d4a6e;
+    --or: #c9a84c;
+    --or-light: #f0d98a;
+    --creme: #f8f4ed;
+    --gris-doux: #e8e2d9;
+    --texte: #1a1a1a;
+    --texte-leger: #5a5a5a;
+    --blanc: #ffffff;
+    --rouge-soft: #c0392b;
+    --vert-soft: #1a7a4a;
+    --violet-soft: #5b3d8a;
+    --orange-soft: #c27a2a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--creme);
+    color: var(--texte);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--bleu);
+    padding: 48px 40px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 50%;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 20%;
+    width: 200px; height: 200px;
+    border: 1px solid rgba(201,168,76,0.1);
+    border-radius: 50%;
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--or-light);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 52px);
+    color: var(--blanc);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  header h1 span { color: var(--or); }
+
+  header p {
+    color: rgba(255,255,255,0.65);
+    font-size: 15px;
+    font-weight: 300;
+    max-width: 560px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+
+  .header-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  .meta-item strong {
+    display: block;
+    color: var(--or-light);
+    font-size: 20px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    letter-spacing: 0;
+    margin-bottom: 2px;
+  }
+
+  /* SEARCH & FILTERS */
+  .controls {
+    background: var(--blanc);
+    border-bottom: 1px solid var(--gris-doux);
+    padding: 20px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 240px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    padding: 10px 16px 10px 40px;
+    border: 1px solid var(--gris-doux);
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    background: var(--creme);
+    color: var(--texte);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-wrap input:focus { border-color: var(--bleu-mid); }
+
+  .search-icon {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--texte-leger);
+    font-size: 15px;
+  }
+
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 8px 14px;
+    border-radius: 3px;
+    border: 1px solid var(--gris-doux);
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--texte-leger);
+    letter-spacing: 0.3px;
+  }
+
+  .filter-btn:hover { border-color: var(--bleu-mid); color: var(--bleu); }
+  .filter-btn.active { background: var(--bleu); border-color: var(--bleu); color: var(--blanc); }
+
+  /* MAIN LAYOUT */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 40px 80px;
+  }
+
+  /* CATEGORY SECTIONS */
+  .category-section {
+    margin-bottom: 56px;
+  }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--gris-doux);
+  }
+
+  .category-icon {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .category-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--bleu);
+  }
+
+  .category-count {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--texte-leger);
+    letter-spacing: 1px;
+  }
+
+  /* PROMPT CARDS GRID */
+  .prompts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+  }
+
+  /* PROMPT CARD */
+  .prompt-card {
+    background: var(--blanc);
+    border: 1px solid var(--gris-doux);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .prompt-card:hover {
+    border-color: var(--bleu-mid);
+    box-shadow: 0 4px 20px rgba(26,46,74,0.08);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--gris-doux);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--bleu);
+    line-height: 1.3;
+  }
+
+  .card-body {
+    padding: 16px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--texte-leger);
+    line-height: 1.5;
+  }
+
+  /* PROMPT TEXT */
+  .prompt-text {
+    background: #f0ede8;
+    border-left: 3px solid var(--or);
+    border-radius: 0 4px 4px 0;
+    padding: 14px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--texte);
+    position: relative;
+  }
+
+  .prompt-text .variable {
+    background: rgba(201,168,76,0.2);
+    border: 1px solid rgba(201,168,76,0.5);
+    border-radius: 3px;
+    padding: 0 4px;
+    color: #8a6010;
+    font-weight: 500;
+  }
+
+  /* COPY BUTTON */
+  .card-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--gris-doux);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .level-badge {
+    font-size: 11px;
+    color: var(--texte-leger);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .level-dots {
+    display: flex;
+    gap: 3px;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gris-doux);
+  }
+
+  .dot.filled { background: var(--bleu-mid); }
+
+  .copy-btn {
+    padding: 6px 14px;
+    background: var(--bleu);
+    color: var(--blanc);
+    border: none;
+    border-radius: 3px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .copy-btn:hover { background: var(--bleu-mid); }
+  .copy-btn.copied { background: var(--vert-soft); }
+
+  /* ALERT CARD */
+  .alert-card {
+    background: rgba(26,46,74,0.04);
+    border: 1px solid rgba(26,46,74,0.12);
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-size: 12px;
+    color: var(--texte-leger);
+    line-height: 1.5;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+  }
+
+  /* NO RESULTS */
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--texte-leger);
+    display: none;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--bleu);
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  /* COLOR THEMES PER CATEGORY */
+  .cat-redaction .category-icon { background: rgba(192,57,43,0.1); }
+  .cat-redaction .card-tag { background: rgba(192,57,43,0.1); color: var(--rouge-soft); }
+  .cat-redaction .prompt-card:hover { border-color: rgba(192,57,43,0.4); }
+
+  .cat-juridique .category-icon { background: rgba(26,46,74,0.1); }
+  .cat-juridique .card-tag { background: rgba(26,46,74,0.1); color: var(--bleu); }
+
+  .cat-rh .category-icon { background: rgba(91,61,138,0.1); }
+  .cat-rh .card-tag { background: rgba(91,61,138,0.1); color: var(--violet-soft); }
+  .cat-rh .prompt-card:hover { border-color: rgba(91,61,138,0.4); }
+
+  .cat-communication .category-icon { background: rgba(194,122,42,0.1); }
+  .cat-communication .card-tag { background: rgba(194,122,42,0.1); color: var(--orange-soft); }
+  .cat-communication .prompt-card:hover { border-color: rgba(194,122,42,0.4); }
+
+  .cat-analyse .category-icon { background: rgba(26,122,74,0.1); }
+  .cat-analyse .card-tag { background: rgba(26,122,74,0.1); color: var(--vert-soft); }
+  .cat-analyse .prompt-card:hover { border-color: rgba(26,122,74,0.4); }
+
+  .cat-management .category-icon { background: rgba(201,168,76,0.15); }
+  .cat-management .card-tag { background: rgba(201,168,76,0.15); color: #7a5e10; }
+  .cat-management .prompt-card:hover { border-color: rgba(201,168,76,0.5); }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 600px) {
+    header, .controls, main { padding-left: 20px; padding-right: 20px; }
+    .prompts-grid { grid-template-columns: 1fr; }
+    .header-meta { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">CNFPT · Formation IA · 2026</div>
+  <h1>Promptothèque<br><span>Agents Territoriaux</span></h1>
+  <p>Bibliothèque de prompts à haute valeur ajoutée, conçue pour les besoins réels des agents des collectivités territoriales.</p>
+  <div class="header-meta">
+    <div class="meta-item"><strong>42</strong>PROMPTS</div>
+    <div class="meta-item"><strong>6</strong>DOMAINES</div>
+    <div class="meta-item"><strong>3</strong>NIVEAUX</div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Rechercher un prompt, un usage…">
+  </div>
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all">Tous</button>
+    <button class="filter-btn" data-filter="redaction">Rédaction</button>
+    <button class="filter-btn" data-filter="juridique">Juridique</button>
+    <button class="filter-btn" data-filter="rh">RH</button>
+    <button class="filter-btn" data-filter="communication">Communication</button>
+    <button class="filter-btn" data-filter="analyse">Analyse</button>
+    <button class="filter-btn" data-filter="management">Management</button>
+  </div>
+</div>
+
+<main>
+
+  <div class="alert-card">
+    ⚠️ <span>Les mots en <strong style="color:#8a6010">surbrillance dorée</strong> sont des variables à remplacer par vos informations. Ne transmettez jamais de données personnelles ou sensibles à un outil IA non homologué par votre collectivité.</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- RÉDACTION ADMINISTRATIVE -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="category-section cat-redaction" data-category="redaction">
+    <div class="category-header">
+      <div class="category-icon">✍️</div>
+      <div>
+        <div class="category-title">Rédaction administrative</div>
+      </div>
+      <span class="category-count">8 PROMPTS</span>
+    </div>
+
+    <div class="prompts-grid">
+
+      <div class="prompt-card" data-category="redaction" data-text="réponse courrier administré mécontent refus décision">
+        <div class="card-header">
+          <span class="card-tag">Courrier</span>
+          <span class="card-title">Réponse à un administré mécontent</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Rédiger une réponse professionnelle, empathique mais ferme à une réclamation ou contestation d'un citoyen.</p>
+          <div class="prompt-text">Tu es agent d'accueil dans une collectivité territoriale. Rédige une réponse officielle à un administré qui conteste <span class="variable">[décision : refus de permis / non-attribution d'un logement / rejet d'une demande d'aide]</span>. La réponse doit : reconnaître sa situation sans valider sa contestation, rappeler brièvement le cadre réglementaire applicable, indiquer les voies de recours disponibles, conclure de façon ouverte. Ton professionnel, empathique et clair. Maximum 15 lignes.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="redaction" data-text="note service interne information agents direction">
+        <div class="card-header">
+          <span class="card-tag">Note interne</span>
+          <span class="card-title">Note de service structurée</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Produire une note de service claire, hiérarchisée et directement utilisable.</p>
+          <div class="prompt-text">Tu es chargé de mission dans une collectivité de <span class="variable">[taille : petite commune / intercommunalité / département]</span>. Rédige une note de service à destination de <span class="variable">[destinataires : tous les agents / le service RH / les cadres de direction]</span> sur le sujet suivant : <span class="variable">[sujet]</span>. Structure : objet / contexte (3 lignes max) / dispositions applicables / actions attendues des agents / date d'entrée en vigueur. Ton institutionnel, phrases courtes.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div> Débutant</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="redaction" data-text="compte rendu réunion synthèse procès verbal conseil">
+        <div class="card-header">
+          <span class="card-tag">Compte-rendu</span>
+          <span class="card-title">Synthèse de réunion</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Transformer des notes brutes de réunion en compte-rendu structuré et professionnel.</p>
+          <div class="prompt-text">Voici mes notes brutes de la réunion du <span class="variable">[date]</span> sur le sujet <span class="variable">[sujet]</span> : <span class="variable">[coller les notes]</span>. Transforme-les en compte-rendu structuré avec : participants / ordre du jour / points traités (décisions prises, points en suspens) / actions à engager avec responsable et échéance / prochain rendez-vous. Supprime les répétitions, reformule en style administratif neutre.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div> Débutant</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="redaction" data-text="rapport activité bilan annuel service présentation élus">
+        <div class="card-header">
+          <span class="card-tag">Rapport</span>
+          <span class="card-title">Rapport d'activité annuel</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Structurer et rédiger un rapport d'activité à destination des élus ou de la direction générale.</p>
+          <div class="prompt-text">Tu es responsable du service <span class="variable">[nom du service]</span> dans une collectivité. Voici les données brutes de l'année <span class="variable">[année]</span> : <span class="variable">[chiffres, actions menées, projets]</span>. Rédige un rapport d'activité structuré en 4 parties : faits marquants de l'année / indicateurs clés commentés / difficultés rencontrées et solutions apportées / perspectives pour l'année suivante. Public cible : élus et DGS non spécialistes du service. Privilégie les formulations valorisantes sans être promotionnel.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div> Avancé</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="redaction" data-text="langage clair simplifié accessibilité FALC citoyen courrier">
+        <div class="card-header">
+          <span class="card-tag">Accessibilité</span>
+          <span class="card-title">Reformulation en langage clair</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Rendre un texte administratif accessible à tous les citoyens, y compris ceux en difficulté avec la lecture.</p>
+          <div class="prompt-text">Reformule ce texte administratif en langage clair et accessible, compréhensible par un citoyen de niveau collège. Règles : phrases courtes (max 20 mots), verbes actifs, pas de jargon, un seul message par phrase, chiffres écrits en toutes lettres. Conserve toutes les informations importantes. Voici le texte original : <span class="variable">[coller le texte]</span>.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div> Débutant</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="redaction" data-text="arrêté municipal délibération acte administratif">
+        <div class="card-header">
+          <span class="card-tag">Acte admin.</span>
+          <span class="card-title">Aide à la rédaction d'un arrêté</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Obtenir une trame structurée d'arrêté municipal ou de délibération à compléter et valider.</p>
+          <div class="prompt-text">Propose-moi une trame d'arrêté municipal pour <span class="variable">[objet : interdiction de circulation / manifestation sur voie publique / réglementation d'un espace]</span>. La trame doit inclure les visas réglementaires habituels, les considérants, le dispositif et les mentions finales. Indique clairement les éléments à compléter par mes soins. ⚠️ Ce document devra être relu et validé par le service juridique avant signature.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="redaction" data-text="mail relance demande interne externe suivi">
+        <div class="card-header">
+          <span class="card-tag">Email</span>
+          <span class="card-title">Mail de relance diplomatique</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Relancer un interlocuteur interne ou externe sans créer de tension ni perdre en professionnalisme.</p>
+          <div class="prompt-text">Rédige un mail de relance professionnel et courtois à <span class="variable">[interlocuteur : un prestataire / un service partenaire / un élu]</span> concernant <span class="variable">[objet : une réponse attendue / un document non transmis / une décision en attente]</span> depuis <span class="variable">[délai]</span>. Le ton doit être ferme sans être agressif, rappeler l'enjeu sans accuser, proposer une issue concrète. Maximum 8 lignes.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div> Débutant</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="redaction" data-text="discours allocution cérémonie maire élu inauguration">
+        <div class="card-header">
+          <span class="card-tag">Discours</span>
+          <span class="card-title">Allocution pour cérémonie</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Préparer une allocution adaptée au contexte, au public et à la personnalité de l'élu.</p>
+          <div class="prompt-text">Tu assistes un élu dans la rédaction de son allocution pour <span class="variable">[événement : inauguration / cérémonie des vœux / remise de médailles / commémoration]</span> devant <span class="variable">[public : habitants / agents / associations / partenaires institutionnels]</span>. Durée souhaitée : <span class="variable">[3 / 5 / 10 minutes]</span>. Éléments à valoriser : <span class="variable">[projets phares / valeurs / bilan / remerciements]</span>. Ton : <span class="variable">[solennel / chaleureux / dynamique]</span>. Le discours doit sonner humain, pas administratif.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- JURIDIQUE & RÉGLEMENTAIRE -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="category-section cat-juridique" data-category="juridique">
+    <div class="category-header">
+      <div class="category-icon">⚖️</div>
+      <div>
+        <div class="category-title">Juridique & réglementaire</div>
+      </div>
+      <span class="category-count">7 PROMPTS</span>
+    </div>
+
+    <div class="prompts-grid">
+
+      <div class="prompt-card" data-category="juridique" data-text="veille juridique réglementaire texte loi décret circulaire">
+        <div class="card-header">
+          <span class="card-tag">Veille</span>
+          <span class="card-title">Cartographie réglementaire d'un sujet</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Identifier rapidement les textes de référence applicables à un domaine. À croiser impérativement avec Légifrance.</p>
+          <div class="prompt-text">Dans le contexte de la fonction publique territoriale française, liste les principaux textes réglementaires applicables à <span class="variable">[sujet : protection des données / accessibilité numérique / marchés publics / temps de travail]</span>. Pour chaque texte, indique : son intitulé exact / sa date / son objet en une phrase / ce qu'il impose concrètement aux collectivités. ⚠️ Je vérifierai chaque référence sur Légifrance avant tout usage officiel.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="juridique" data-text="RGPD données personnelles traitement conformité collectivité">
+        <div class="card-header">
+          <span class="card-tag">RGPD</span>
+          <span class="card-title">Analyse d'un traitement de données</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Évaluer les risques RGPD d'un traitement de données envisagé par le service.</p>
+          <div class="prompt-text">Voici un traitement de données que mon service envisage de mettre en place : <span class="variable">[description : collecte des données / finalité / personnes concernées / durée de conservation / accès]</span>. Analyse ce traitement au regard du RGPD et indique : la base légale applicable / les risques identifiés / si une AIPD (Analyse d'Impact) est nécessaire / les mesures de sécurité recommandées / les informations à communiquer aux personnes concernées. Format : tableau synthétique.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div> Avancé</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="juridique" data-text="marché public procédure seuil MAPA appel offres">
+        <div class="card-header">
+          <span class="card-tag">Marchés publics</span>
+          <span class="card-title">Choix de procédure d'achat</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Identifier la procédure de marché public adaptée à un besoin d'achat spécifique.</p>
+          <div class="prompt-text">Ma collectivité souhaite acquérir <span class="variable">[bien ou service]</span> pour un montant estimé de <span class="variable">[montant en €]</span>. Indique : la procédure applicable selon le Code de la commande publique / les étapes obligatoires / les délais réglementaires / les critères d'attribution recommandés pour ce type d'achat / les points de vigilance juridiques. ⚠️ À valider avec le service juridique ou la direction des achats.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="juridique" data-text="contentieux recours tribunal administratif défense collectivité">
+        <div class="card-header">
+          <span class="card-tag">Contentieux</span>
+          <span class="card-title">Préparation d'un dossier de défense</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Structurer les éléments d'un dossier contentieux avant transmission au service juridique.</p>
+          <div class="prompt-text">Ma collectivité fait face à un recours contentieux concernant <span class="variable">[objet du litige]</span>. Voici les faits : <span class="variable">[chronologie des faits]</span> et les arguments de la partie adverse : <span class="variable">[arguments]</span>. Aide-moi à structurer les éléments de défense en identifiant : les moyens juridiques mobilisables / les pièces à rassembler / les jurisprudences potentiellement applicables / les faiblesses de notre position à anticiper. Ce travail sera transmis à notre avocat.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div> Avancé</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="juridique" data-text="convention partenariat accord collectivité association">
+        <div class="card-header">
+          <span class="card-tag">Convention</span>
+          <span class="card-title">Trame de convention de partenariat</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Générer une trame de convention de partenariat ou de subvention adaptée au contexte territorial.</p>
+          <div class="prompt-text">Génère une trame de convention de partenariat entre ma collectivité et <span class="variable">[type de partenaire : association / EPCI / entreprise / autre collectivité]</span> dans le cadre de <span class="variable">[projet ou mission]</span>. La trame doit inclure : objet / engagements de chaque partie / modalités financières / durée et conditions de renouvellement / résiliation / litige. Indique les clauses à adapter selon le contexte. ⚠️ Validation juridique obligatoire avant signature.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="juridique" data-text="AI Act intelligence artificielle conformité risque collectivité">
+        <div class="card-header">
+          <span class="card-tag">AI Act</span>
+          <span class="card-title">Évaluation du risque IA d'un projet</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Évaluer le niveau de risque d'un système IA envisagé selon la classification de l'AI Act européen.</p>
+          <div class="prompt-text">Mon service envisage de déployer un système d'IA pour <span class="variable">[usage : tri de dossiers / aide à la décision sociale / chatbot citoyen / analyse de vidéosurveillance]</span>. Au regard de l'AI Act (Règlement UE 2024/1689), indique : la classification de risque applicable / les obligations qui en découlent pour ma collectivité / les échéances réglementaires à respecter / les mesures à mettre en place avant déploiement. Format : fiche synthétique.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div> Avancé</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="juridique" data-text="obligation accessibilité handicap ERP numérique site web">
+        <div class="card-header">
+          <span class="card-tag">Accessibilité</span>
+          <span class="card-title">Audit des obligations d'accessibilité</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Identifier les obligations légales d'accessibilité numérique et physique applicables à la collectivité.</p>
+          <div class="prompt-text">Ma collectivité est <span class="variable">[type : commune de X habitants / département / intercommunalité]</span>. Liste les obligations légales d'accessibilité qui nous incombent en 2026, en distinguant : accessibilité numérique (site web, applis, documents) / accessibilité physique des ERP / délais de mise en conformité / sanctions encourues / aides et ressources disponibles. Indique les priorités selon le calendrier réglementaire actuel.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- RESSOURCES HUMAINES -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="category-section cat-rh" data-category="rh">
+    <div class="category-header">
+      <div class="category-icon">👥</div>
+      <div>
+        <div class="category-title">Ressources humaines</div>
+      </div>
+      <span class="category-count">7 PROMPTS</span>
+    </div>
+
+    <div class="prompts-grid">
+
+      <div class="prompt-card" data-category="rh" data-text="fiche poste recrutement offre emploi agent territorial">
+        <div class="card-header">
+          <span class="card-tag">Recrutement</span>
+          <span class="card-title">Rédaction d'une fiche de poste</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Créer une fiche de poste attractive et conforme aux standards de la fonction publique territoriale.</p>
+          <div class="prompt-text">Rédige une fiche de poste pour le recrutement d'un(e) <span class="variable">[intitulé du poste]</span> au sein du service <span class="variable">[service]</span> de notre <span class="variable">[collectivité]</span>. Missions principales : <span class="variable">[liste des missions]</span>. Profil recherché : <span class="variable">[compétences / diplômes / expérience]</span>. La fiche doit être conforme aux codes de la FPT, inclusive dans sa rédaction (H/F), valorisante pour la collectivité, et structurée selon le format standard : contexte / missions / profil / conditions d'emploi.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div> Débutant</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="rh" data-text="entretien professionnel évaluation agent objectifs CREP">
+        <div class="card-header">
+          <span class="card-tag">Évaluation</span>
+          <span class="card-title">Préparation d'un entretien professionnel</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Structurer les éléments d'un entretien professionnel annuel, côté manager ou côté agent.</p>
+          <div class="prompt-text">Tu es <span class="variable">[responsable de service / agent se préparant à son entretien]</span>. Voici les éléments de l'année écoulée : <span class="variable">[missions réalisées / objectifs atteints ou non / difficultés / formations suivies]</span>. Aide-moi à structurer cet entretien professionnel en : bilan de l'année (points forts / axes d'amélioration) / fixation des objectifs N+1 (SMART) / besoins en formation / évolution souhaitée. Format : trame d'entretien avec questions et espaces de réponse.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="rh" data-text="plan formation besoins compétences catalogue CNFPT">
+        <div class="card-header">
+          <span class="card-tag">Formation</span>
+          <span class="card-title">Élaboration d'un plan de formation</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Construire un plan de formation cohérent à partir des besoins identifiés lors des entretiens professionnels.</p>
+          <div class="prompt-text">Voici les besoins en formation identifiés pour mon service de <span class="variable">[X agents]</span> : <span class="variable">[liste des besoins exprimés]</span>. Mon budget formation est de <span class="variable">[montant €]</span> et ma contrainte principale est <span class="variable">[continuité de service / saisonnalité / éloignement géographique]</span>. Aide-moi à : prioriser ces besoins / identifier les formations CNFPT correspondantes / construire un calendrier réaliste / distinguer formation obligatoire et formation de développement.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="rh" data-text="conflit agent tension équipe médiation RPS risque psychosocial">
+        <div class="card-header">
+          <span class="card-tag">RPS</span>
+          <span class="card-title">Analyse d'une situation de conflit</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Analyser une situation conflictuelle et identifier les leviers d'action managériaux.</p>
+          <div class="prompt-text">Je suis responsable d'un service et je fais face à la situation suivante : <span class="variable">[description factuelle de la situation : tension entre agents / baisse de motivation / isolement / comportement problématique]</span>. Analyse cette situation sans porter de jugement et propose : une lecture des dynamiques à l'œuvre / les signaux d'alerte à surveiller / les actions managériales graduées à engager / les acteurs internes à mobiliser (DRH, médecine de prévention, ISST) / les erreurs à éviter.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div> Avancé</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="rh" data-text="discipline sanction procédure statutaire faute agent">
+        <div class="card-header">
+          <span class="card-tag">Statut</span>
+          <span class="card-title">Procédure disciplinaire — étapes</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Identifier les étapes d'une procédure disciplinaire conforme au statut de la FPT.</p>
+          <div class="prompt-text">Un agent titulaire de ma collectivité a commis les faits suivants : <span class="variable">[description factuelle et objective des faits]</span>. En respectant le statut de la fonction publique territoriale, indique : les fautes susceptibles d'être retenues / l'échelle des sanctions applicables / les étapes procédurales obligatoires (rapport, convocation, conseil de discipline...) / les délais à respecter / les droits de l'agent. ⚠️ Ce document est préparatoire. La décision finale appartient à l'autorité territoriale et doit être validée par la DRH.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div> Avancé</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="rh" data-text="accueil intégration nouveau agent onboarding arrivée">
+        <div class="card-header">
+          <span class="card-tag">Intégration</span>
+          <span class="card-title">Parcours d'accueil d'un nouvel agent</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Construire un parcours d'intégration structuré pour un nouvel agent ou un agent muté.</p>
+          <div class="prompt-text">Je dois accueillir un(e) nouvel(le) agent(e) au poste de <span class="variable">[poste]</span> à partir du <span class="variable">[date]</span>. Il/elle vient de <span class="variable">[interne / externe / première expérience en FPT]</span>. Construis un parcours d'intégration sur les 3 premiers mois incluant : semaine 1 (découverte, administratif, rencontres clés) / mois 1 (montée en compétence, binôme) / mois 2-3 (autonomie progressive, premier bilan). Format : tableau avec étapes, objectifs et responsables.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div> Débutant</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="rh" data-text="absentéisme analyse causes solutions collectivité">
+        <div class="card-header">
+          <span class="card-tag">Absentéisme</span>
+          <span class="card-title">Analyse et plan d'action absentéisme</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Analyser les données d'absentéisme d'un service et construire un plan d'action ciblé.</p>
+          <div class="prompt-text">Voici les données d'absentéisme de mon service sur <span class="variable">[période]</span> : <span class="variable">[taux / types d'absence / profils concernés / évolution]</span>. Analyse ces données et propose : une lecture des causes probables / les indicateurs de vigilance à surveiller / un plan d'action gradué (prévention / détection précoce / accompagnement au retour) / les outils de pilotage à mettre en place. Distingue ce qui relève du manager, de la DRH et de la médecine de prévention.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div> Avancé</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- COMMUNICATION -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="category-section cat-communication" data-category="communication">
+    <div class="category-header">
+      <div class="category-icon">📣</div>
+      <div>
+        <div class="category-title">Communication publique</div>
+      </div>
+      <span class="category-count">7 PROMPTS</span>
+    </div>
+
+    <div class="prompts-grid">
+
+      <div class="prompt-card" data-category="communication" data-text="communiqué presse article actualité collectivité information">
+        <div class="card-header">
+          <span class="card-tag">Presse</span>
+          <span class="card-title">Communiqué de presse</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Rédiger un communiqué de presse structuré et accrocheur pour un événement ou une annonce de la collectivité.</p>
+          <div class="prompt-text">Rédige un communiqué de presse pour <span class="variable">[collectivité]</span> annonçant <span class="variable">[événement / décision / inauguration / projet]</span>. Éléments clés : <span class="variable">[faits, dates, chiffres, citations possibles]</span>. Structure : titre accrocheur / chapeau (qui, quoi, quand, où, pourquoi) / développement en 2 paragraphes / citation d'un élu / informations pratiques / contact presse. Ton : institutionnel mais accessible. Longueur : 300 mots maximum.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div> Débutant</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="communication" data-text="réseaux sociaux post publication Facebook Instagram LinkedIn mairie">
+        <div class="card-header">
+          <span class="card-tag">Réseaux sociaux</span>
+          <span class="card-title">Publication multi-format réseaux sociaux</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Décliner une information en plusieurs formats adaptés aux différents réseaux sociaux de la collectivité.</p>
+          <div class="prompt-text">Voici une information à communiquer : <span class="variable">[information brute]</span>. Décline-la en 3 formats : 1) Post Facebook (180 mots, ton de proximité, appel à l'action) / 2) Publication Instagram (80 mots, accroche forte, 5 hashtags pertinents) / 3) Post LinkedIn (120 mots, ton institutionnel, valorisation de l'action publique). Pour chaque format, suggère le meilleur moment de publication et le type de visuel à associer.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="communication" data-text="newsletter bulletin information habitants magazine municipal">
+        <div class="card-header">
+          <span class="card-tag">Newsletter</span>
+          <span class="card-title">Article pour bulletin municipal</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Rédiger un article de bulletin municipal lisible, valorisant et adapté à un public large.</p>
+          <div class="prompt-text">Rédige un article pour le bulletin municipal de <span class="variable">[collectivité]</span> sur le sujet suivant : <span class="variable">[sujet : nouveau service / travaux / événement / bilan d'une action]</span>. Éléments disponibles : <span class="variable">[informations, chiffres, témoignages éventuels]</span>. Contraintes : 250 mots maximum, vocabulaire accessible à tous les habitants, titre accrocheur, mise en valeur des bénéfices concrets pour les citoyens. Propose également un encadré "À retenir" de 3 points clés.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div> Débutant</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="communication" data-text="gestion crise communication urgence incident situation difficile">
+        <div class="card-header">
+          <span class="card-tag">Crise</span>
+          <span class="card-title">Communication de crise</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Rédiger une communication de crise qui informe sans aggraver, rassure sans minimiser.</p>
+          <div class="prompt-text">Ma collectivité doit communiquer en urgence sur la situation suivante : <span class="variable">[incident : panne / accident / polémique / événement imprévu]</span>. Ce que nous savons avec certitude : <span class="variable">[faits avérés]</span>. Ce qui est encore incertain : <span class="variable">[points non confirmés]</span>. Rédige : 1) Un message d'information immédiate pour les réseaux sociaux (80 mots) / 2) Un communiqué de presse (200 mots) / 3) Un message interne aux agents (100 mots). Principes : transparence sur ce qu'on sait, prudence sur ce qu'on ignore, actions concrètes engagées.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div> Avancé</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="communication" data-text="consultation participation citoyenne questionnaire enquête publique">
+        <div class="card-header">
+          <span class="card-tag">Participation</span>
+          <span class="card-title">Questionnaire de consultation citoyenne</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Concevoir un questionnaire de consultation équilibré, non-orienté et exploitable.</p>
+          <div class="prompt-text">Ma collectivité souhaite consulter les habitants sur <span class="variable">[sujet : aménagement / nouveau service / politique publique]</span>. Public cible : <span class="variable">[tous les habitants / jeunes / usagers d'un service]</span>. Conçois un questionnaire de 8 à 10 questions : questions fermées pour les données quantitatives, questions ouvertes pour recueillir des suggestions. Les questions doivent être neutres (non-orientées), progressives (du général au particulier), accessibles et exploitables statistiquement. Ajoute une introduction expliquant l'objectif et la suite donnée.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="communication" data-text="FAQ questions réponses foire aux questions service public information">
+        <div class="card-header">
+          <span class="card-tag">FAQ</span>
+          <span class="card-title">Foire aux questions (FAQ) thématique</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Créer une FAQ complète et claire pour un service ou une démarche administrative fréquemment sollicitée.</p>
+          <div class="prompt-text">Crée une FAQ destinée aux habitants sur le thème <span class="variable">[thème : démarches état civil / collecte des déchets / aides sociales / permis de construire]</span>. La FAQ doit contenir 10 questions fréquentes avec leurs réponses. Critères : questions formulées comme les habitants les posent réellement / réponses en 3-5 lignes maximum / langage clair et sans jargon / indication des délais et interlocuteurs quand pertinent / renvoi vers les démarches en ligne si disponibles.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div> Débutant</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="communication" data-text="présentation projet PowerPoint diaporama élu conseil municipal">
+        <div class="card-header">
+          <span class="card-tag">Présentation</span>
+          <span class="card-title">Structure de présentation pour élus</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Organiser le plan d'une présentation percutante à destination des élus ou du conseil municipal.</p>
+          <div class="prompt-text">Je dois présenter <span class="variable">[projet / bilan / proposition / étude]</span> au conseil municipal / à la direction générale. Durée : <span class="variable">[10 / 20 / 30 minutes]</span>. Enjeu principal : <span class="variable">[obtenir une décision / informer / convaincre / alerter]</span>. Conçois le plan de ma présentation slide par slide, avec pour chaque diapositive : titre / message clé en une phrase / contenu suggéré (données, visuels, exemples). Maximum <span class="variable">[X]</span> slides. Les élus n'ont pas le temps : chaque slide doit délivrer un seul message.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ANALYSE & PILOTAGE -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="category-section cat-analyse" data-category="analyse">
+    <div class="category-header">
+      <div class="category-icon">📊</div>
+      <div>
+        <div class="category-title">Analyse & pilotage</div>
+      </div>
+      <span class="category-count">7 PROMPTS</span>
+    </div>
+
+    <div class="prompts-grid">
+
+      <div class="prompt-card" data-category="analyse" data-text="tableau de bord indicateurs suivi performance service">
+        <div class="card-header">
+          <span class="card-tag">Pilotage</span>
+          <span class="card-title">Construction d'un tableau de bord</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Identifier les indicateurs pertinents pour piloter un service ou un projet.</p>
+          <div class="prompt-text">Je souhaite construire un tableau de bord de pilotage pour le service <span class="variable">[nom du service]</span> dont les missions principales sont <span class="variable">[missions]</span>. Propose 8 à 10 indicateurs pertinents en distinguant : indicateurs d'activité (volume) / indicateurs de qualité (satisfaction, délais) / indicateurs de ressources (budget, RH) / indicateurs d'impact (effet sur les citoyens). Pour chaque indicateur : intitulé / mode de calcul / source de données / fréquence de mise à jour / cible ou seuil d'alerte.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div> Avancé</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="analyse" data-text="analyse données statistiques résultats interprétation rapport">
+        <div class="card-header">
+          <span class="card-tag">Données</span>
+          <span class="card-title">Interprétation de données chiffrées</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Transformer des données brutes en analyse lisible et actionnable pour un décideur.</p>
+          <div class="prompt-text">Voici des données chiffrées issues de <span class="variable">[source : bilan d'activité / enquête / statistiques nationales]</span> : <span class="variable">[coller les données]</span>. Analyse ces données en : identifiant les 3 tendances principales / signalant les données anormales ou surprenantes / mettant en perspective avec <span class="variable">[comparaison : année précédente / moyenne nationale / objectifs fixés]</span> / formulant 3 recommandations opérationnelles. Format : texte structuré de 400 mots maximum, utilisable directement dans un rapport.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="analyse" data-text="diagnostic territoire besoins population analyse SWOT">
+        <div class="card-header">
+          <span class="card-tag">Diagnostic</span>
+          <span class="card-title">Diagnostic territorial simplifié</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Structurer un diagnostic de territoire pour préparer une politique publique ou un projet.</p>
+          <div class="prompt-text">Je dois réaliser un diagnostic territorial sur <span class="variable">[thème : mobilité / logement / petite enfance / insertion / numérique]</span> pour <span class="variable">[territoire : commune / intercommunalité / quartier]</span>. Voici les données disponibles : <span class="variable">[données démographiques, sociales, équipements]</span>. Aide-moi à structurer ce diagnostic en : état des lieux (forces / faiblesses) / analyse des besoins (exprimés et latents) / enjeux prioritaires / pistes d'action / indicateurs de suivi. Format SWOT adapté au contexte territorial.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div> Avancé</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="analyse" data-text="budget prévisionnel analyse financière dépenses recettes collectivité">
+        <div class="card-header">
+          <span class="card-tag">Finance</span>
+          <span class="card-title">Analyse d'une situation budgétaire</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Analyser une situation budgétaire et identifier les leviers d'action disponibles.</p>
+          <div class="prompt-text">Voici la situation budgétaire de mon service : budget alloué <span class="variable">[montant]</span> / dépenses engagées à ce jour <span class="variable">[montant]</span> / reste à engager <span class="variable">[montant]</span> / écarts par rapport au prévisionnel <span class="variable">[détail]</span>. Analyse cette situation et propose : une lecture des écarts (causes probables) / les risques à anticiper d'ici la fin d'exercice / 3 scénarios d'ajustement (économies / reports / redéploiement) / les arbitrages à soumettre à la direction. Langage accessible pour un non-financier.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="analyse" data-text="évaluation politique publique impact résultats bilan">
+        <div class="card-header">
+          <span class="card-tag">Évaluation</span>
+          <span class="card-title">Évaluation d'une politique publique</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Construire un cadre d'évaluation rigoureux pour mesurer l'impact d'une politique publique locale.</p>
+          <div class="prompt-text">Ma collectivité souhaite évaluer la politique <span class="variable">[nom de la politique : insertion / jeunesse / mobilité / logement]</span> mise en place depuis <span class="variable">[durée]</span> avec un budget de <span class="variable">[montant]</span>. Construis un cadre d'évaluation incluant : les questions évaluatives pertinentes / les critères d'évaluation (efficacité, efficience, pertinence, cohérence) / les indicateurs et sources de données / la méthode de collecte / le calendrier / le format de restitution recommandé. Distingue évaluation de processus et évaluation d'impact.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div> Avancé</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="analyse" data-text="veille benchmarking comparaison autres collectivités bonnes pratiques">
+        <div class="card-header">
+          <span class="card-tag">Benchmark</span>
+          <span class="card-title">Cadre de benchmarking inter-collectivités</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Structurer une démarche de comparaison avec d'autres collectivités pour s'inspirer de bonnes pratiques.</p>
+          <div class="prompt-text">Je souhaite identifier des bonnes pratiques d'autres collectivités sur le sujet <span class="variable">[sujet]</span>. Aide-moi à construire une grille de benchmarking incluant : les critères de comparaison pertinents / les types de collectivités à cibler (taille, contexte similaire) / les sources d'information fiables (AMF, ADCF, CNFPT, réseaux métiers) / les questions à poser lors d'échanges pairs à pairs / la méthode pour adapter à mon contexte ce qui fonctionne ailleurs.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="analyse" data-text="synthèse document rapport lecture rapide résumé">
+        <div class="card-header">
+          <span class="card-tag">Synthèse</span>
+          <span class="card-title">Synthèse exécutive d'un document long</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Extraire l'essentiel d'un rapport ou d'une étude volumineuse pour une prise de décision rapide.</p>
+          <div class="prompt-text">Voici un document de <span class="variable">[X pages]</span> sur le sujet <span class="variable">[sujet]</span> : <span class="variable">[coller le texte ou les extraits]</span>. Rédige une synthèse exécutive en 3 parties : 1) En 3 phrases : de quoi parle ce document et pourquoi c'est important pour une collectivité / 2) Les 5 points clés à retenir (avec numéro de page si applicable) / 3) Les 3 implications concrètes pour mon service. Format : lecture possible en moins de 2 minutes.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div> Débutant</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- MANAGEMENT & ORGANISATION -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="category-section cat-management" data-category="management">
+    <div class="category-header">
+      <div class="category-icon">🧭</div>
+      <div>
+        <div class="category-title">Management & organisation</div>
+      </div>
+      <span class="category-count">6 PROMPTS</span>
+    </div>
+
+    <div class="prompts-grid">
+
+      <div class="prompt-card" data-category="management" data-text="conduite changement résistance accompagnement transformation organisation">
+        <div class="card-header">
+          <span class="card-tag">Changement</span>
+          <span class="card-title">Plan de conduite du changement</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Structurer l'accompagnement humain d'un projet de transformation dans un service public.</p>
+          <div class="prompt-text">Mon service doit mettre en place <span class="variable">[changement : nouveau logiciel / réorganisation / fusion de services / nouveau process]</span> d'ici <span class="variable">[date]</span>. L'équipe est composée de <span class="variable">[X agents, profils, ancienneté]</span>. Les résistances anticipées sont <span class="variable">[liste]</span>. Construis un plan de conduite du changement incluant : diagnostic des parties prenantes / messages clés par cible / actions d'accompagnement par phase / indicateurs d'adhésion / points de vigilance. Format : plan d'action opérationnel sur 3 phases.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div> Avancé</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="management" data-text="ordre du jour réunion animation efficace compte rendu">
+        <div class="card-header">
+          <span class="card-tag">Réunion</span>
+          <span class="card-title">Ordre du jour de réunion efficace</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Préparer une réunion productive avec un ordre du jour structuré et des objectifs clairs.</p>
+          <div class="prompt-text">Je dois animer une réunion de <span class="variable">[durée]</span> avec <span class="variable">[X personnes : équipe / partenaires / élus]</span> sur les sujets suivants : <span class="variable">[liste brute des sujets à aborder]</span>. Construis un ordre du jour optimisé avec : priorisation des sujets selon leur nature (décision / information / travail collectif) / temps alloué à chaque point / objectif précis de chaque séquence / format d'animation recommandé / ce qui peut être traité hors réunion. Ajoute une ouverture et une clôture efficaces.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot"></div><div class="dot"></div></div> Débutant</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="management" data-text="projet planning organisation rétro-planning étapes jalons">
+        <div class="card-header">
+          <span class="card-tag">Projet</span>
+          <span class="card-title">Rétro-planning de projet</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Construire un planning réaliste à rebours depuis la date butoir d'un projet.</p>
+          <div class="prompt-text">Je dois livrer <span class="variable">[livrable / résultat attendu]</span> pour le <span class="variable">[date butoir]</span>. Nous sommes le <span class="variable">[date de départ]</span>. Les étapes indispensables sont : <span class="variable">[liste des étapes]</span>. Les contraintes sont : <span class="variable">[congés / décisions d'élus nécessaires / délais réglementaires / ressources limitées]</span>. Construis un rétro-planning avec : jalons clés et dates / tâches par phase / responsables suggérés / points de risque / marges de sécurité intégrées.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="management" data-text="délégation organisation travail priorisation charge agent manager">
+        <div class="card-header">
+          <span class="card-tag">Organisation</span>
+          <span class="card-title">Matrice de délégation et priorisation</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Organiser la charge de travail d'un service en identifiant ce qui peut être délégué, différé ou abandonné.</p>
+          <div class="prompt-text">Voici la liste des tâches et missions de mon service : <span class="variable">[liste des tâches]</span>. Mon équipe est composée de <span class="variable">[X agents avec leurs profils]</span>. La surcharge actuelle porte sur <span class="variable">[domaines]</span>. Aide-moi à construire une matrice de priorisation en 4 quadrants (urgent/important) et une carte de délégation indiquant : ce que je dois faire moi-même / ce qui peut être délégué à qui / ce qui peut être différé / ce qui peut être supprimé ou externalisé. Critères de décision explicites.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="management" data-text="feedback retour agent positif négatif constructif entretien">
+        <div class="card-header">
+          <span class="card-tag">Feedback</span>
+          <span class="card-title">Formuler un feedback difficile</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Préparer un retour constructif à un agent sur un comportement ou une performance problématique.</p>
+          <div class="prompt-text">Je dois faire un retour à un agent sur la situation suivante : <span class="variable">[description factuelle et objective : comportement / résultat / attitude]</span>. L'impact sur le service ou l'équipe est : <span class="variable">[impact concret]</span>. L'agent est <span class="variable">[profil : expérimenté / débutant / en difficulté / susceptible]</span>. Aide-moi à formuler ce feedback en suivant la méthode DESC (Décrire / Exprimer / Spécifier / Conséquences) de façon bienveillante mais claire. Fournis une formulation orale de 5-8 phrases et les questions à poser pour engager le dialogue.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot"></div></div> Intermédiaire</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+      <div class="prompt-card" data-category="management" data-text="charte usage IA intelligence artificielle règles service collectivité">
+        <div class="card-header">
+          <span class="card-tag">Gouvernance IA</span>
+          <span class="card-title">Trame de charte d'usage de l'IA</span>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Construire une charte d'utilisation de l'IA adaptée à une collectivité, opérationnelle et non bureaucratique.</p>
+          <div class="prompt-text">Ma collectivité souhaite formaliser une charte d'usage des outils IA pour ses agents. Contexte : <span class="variable">[taille / outils déjà utilisés / niveau de maturité numérique]</span>. Rédige une trame de charte incluant : principes généraux d'usage / usages autorisés / usages interdits (données personnelles, actes officiels...) / responsabilités de l'agent / règles de vérification des productions IA / procédure en cas de doute / révision de la charte. Ton : accessible et pratique, pas juridique. Maximum 2 pages A4.</div>
+        </div>
+        <div class="card-footer">
+          <div class="level-badge"><div class="level-dots"><div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div></div> Avancé</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 Copier</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="no-results" id="noResults">
+    <p style="font-size:32px;margin-bottom:12px">🔍</p>
+    <p style="font-size:16px;font-weight:500;margin-bottom:8px">Aucun prompt trouvé</p>
+    <p style="font-size:13px">Essayez d'autres mots-clés ou réinitialisez les filtres</p>
+  </div>
+
+</main>
+
+<footer>
+  © Stéphanie Dejonghe — Tous droits réservés. Usage personnel et professionnel autorisé, diffusion interdite.<br>
+  PROMPTOTHÈQUE AGENTS TERRITORIAUX · CNFPT · FORMATION IA 2026 · 42 PROMPTS · À USAGE PÉDAGOGIQUE
+</footer>
+
+<script>
+  // Copy functionality
+  function copyPrompt(btn) {
+    const card = btn.closest('.prompt-card');
+    const promptEl = card.querySelector('.prompt-text');
+    // Get text content, replacing variable spans with their text
+    let text = promptEl.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✅ Copié';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = '📋 Copier';
+        btn.classList.remove('copied');
+      }, 2000);
+    }).catch(() => {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      btn.textContent = '✅ Copié';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.innerHTML = '📋 Copier'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  // Filter functionality
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.prompt-card');
+  const sections = document.querySelectorAll('.category-section');
+  const searchInput = document.getElementById('searchInput');
+  const noResults = document.getElementById('noResults');
+
+  function applyFilters() {
+    const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const category = card.dataset.category;
+      const searchData = (card.dataset.text + ' ' + card.querySelector('.card-title').textContent + ' ' + card.querySelector('.card-desc').textContent + ' ' + card.querySelector('.prompt-text').textContent).toLowerCase();
+      
+      const matchFilter = activeFilter === 'all' || category === activeFilter;
+      const matchSearch = !searchTerm || searchData.includes(searchTerm);
+      
+      if (matchFilter && matchSearch) {
+        card.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+
+    // Show/hide sections based on visible cards
+    sections.forEach(section => {
+      const visibleCards = section.querySelectorAll('.prompt-card:not(.hidden)');
+      section.style.display = visibleCards.length === 0 ? 'none' : 'block';
+    });
+
+    noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilters();
+    });
+  });
+
+  searchInput.addEventListener('input', applyFilters);
+</script>
+</body>
+</html>
